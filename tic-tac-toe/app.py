@@ -53,6 +53,27 @@ def checkWin():
   else:
     return False
 
+#check who won (X or O)
+def checkWhichMarkWon(mark):
+  if(board[1] == board[2] and board[1] == board[3] and board[1] !=mark):
+    return True
+  elif(board[4] == board[5] and board[4] == board[6] and board[4] !=mark):
+    return True
+  elif(board[7] == board[8] and board[7] == board[9] and board[7] !=mark):
+    return True
+  elif(board[1] == board[4] and board[1] == board[7] and board[1] !=mark):
+    return True
+  elif(board[2] == board[5] and board[2] == board[8] and board[2] !=mark):
+    return True
+  elif(board[3] == board[6] and board[3] == board[9] and board[3] !=mark):
+    return True
+  elif(board[1] == board[5] and board[1] == board[9] and board[1] !=mark):
+    return True
+  elif(board[3] == board[5] and board[3] == board[7] and board[3] !=mark):
+    return True
+  else:
+    return False
+
 
 #insert symbol
 def insertSymbol(symbol,position):
@@ -90,10 +111,59 @@ def playerMove():
   return
 
 def computerMove():
-    position = int(input("Enter the position for 'X':"))
-    insertSymbol(computerSymbol,position)
+    bestScore = -800
+    bestMove = 0
+
+    for key in board.keys():
+        if(board[key]==' '):
+           board[key] = computerSymbol #maximizing moment
+           score = minimax(board,0,False) #minimizing moment
+           board[key] = ' ' #to play again the next move
+
+           if(score > bestScore):
+              bestScore = score
+              bestMove = key
+    
+    insertSymbol(computerSymbol,bestMove)
     return
 
+#minimax algorithm implementation
+def minimax(board,depth,isMaximizing):
+    if checkWhichMarkWon(computerSymbol):
+      return 1
+    elif checkWhichMarkWon(playerSymbol):
+      return -1
+    elif checkDraw():
+      return 0
+
+    if isMaximizing:      #playing as a computer
+      bestScore = -800
+      for key in board.keys():
+        if(board[key]==' '):
+           board[key] = computerSymbol
+           score = minimax(board,0,False) 
+           board[key] = ' ' 
+
+           if(score > bestScore):
+              bestScore = score
+      
+      return bestScore
+
+    else: #it is executed first
+      bestScore = 800       #enemy bot
+      for key in board.keys():
+        if(board[key]==' '):
+           board[key] = computerSymbol #minmizing
+           score = minimax(board,0,True) #calling maximizing
+           board[key] = ' ' #to play again the next move
+
+           if(score < bestScore):
+              bestScore = score
+
+      return bestScore
+
+
+print("Computer starts first.\n")
 #condition for game run
 while not checkWin():
     computerMove()
